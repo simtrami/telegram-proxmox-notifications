@@ -9,8 +9,10 @@ Now let's build a bash script for our Proxmox / other linux distro. <br />
 First install `lm-sensors` application by running `apt install lm-sensors` <br />
 Then run command `sensors-detect` <br />
 After that you run just `sensors` to see current temperatures. <br />
-Run command below: <br />
+Run command below, for Intel CPUs: <br />
 `sensors | grep Core | awk '{print $3}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1` -command to see if you get the desired output ( just a temp of hottest core ) <br />
+Run this command for AMD CPUs: <br />
+`sensors | grep Tctl | awk '{print $2}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1` -command to see if you get the desired output ( just a temp of hottest core ) <br />
 
 First script with notify_teams function to test connectivity <br />
 
@@ -36,9 +38,17 @@ Second script that runs temps but not in cron: <br />
 #!/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin
 
+# Modes available (intel is default): intel, amd
+MODE='intel'
 TELEGRAM_ENDPOINT='https://api.telegram.org/bot<token>/sendMessage'
 CHAT_ID='<chat_id>'
-CPU_TEMP=$(sensors | grep Core | awk '{print $3}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1)
+
+if [ "$MODE" = 'amd' ]; then
+        CPU_TEMP=$(sensors | grep Tctl | awk '{print $2}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1)
+else
+        CPU_TEMP=$(sensors | grep Core | awk '{print $3}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1)
+fi
+
 set -x
 
 notify_teams(){
@@ -55,9 +65,16 @@ root@pve:/tmp# cat telegram.sh
 #!/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/games:/usr/local/sbin:/usr/local/bin
 
+# Modes available (intel is default): intel, amd
+MODE='intel'
 TELEGRAM_ENDPOINT='https://api.telegram.org/bot<token>/sendMessage'
 CHAT_ID='<chat_id>'
-CPU_TEMP=$(sensors | grep Core | awk '{print $3}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1)
+
+if [ "$MODE" = 'amd' ]; then
+        CPU_TEMP=$(sensors | grep Tctl | awk '{print $2}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1)
+else
+        CPU_TEMP=$(sensors | grep Core | awk '{print $3}' | sed 's/[+]\([0-9]\+\)\..*/\1/' | sort -nr | head -n 1)
+fi
 
 if  [ "$CPU_TEMP" -gt 65 ];
  then
