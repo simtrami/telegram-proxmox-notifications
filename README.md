@@ -52,7 +52,7 @@ fi
 set -x
 
 notify_teams(){
-	curl --request 'POST' --url $TELEGRAM_ENDPOINT --header 'Content-Type: application/json' --data '{ "chat_id": '"$CHAT_ID"', "text": "WARNING: CPU temp is '"$CPU_TEMP"'°C"}'
+	curl --request 'POST' --url $TELEGRAM_ENDPOINT --header 'Content-Type: application/json' --data '{ "chat_id": '"$CHAT_ID"', "text": "WARNING: '"$HOSTNAME"': CPU temp is '"$CPU_TEMP"'°C"}'
 }
 
 notify_teams
@@ -78,7 +78,7 @@ fi
 
 if  [ "$CPU_TEMP" -gt 65 ];
  then
-  curl --request 'POST' --url $TELEGRAM_ENDPOINT --header 'Content-Type: application/json' --data '{ "chat_id": '"$CHAT_ID"', "text": "WARNING: CPU temp is '"$CPU_TEMP"'°C"}'
+  curl --request 'POST' --url $TELEGRAM_ENDPOINT --header 'Content-Type: application/json' --data '{ "chat_id": '"$CHAT_ID"', "text": "WARNING: '"$HOSTNAME"': CPU temp is '"$CPU_TEMP"'°C"}'
 fi
 ```
 
